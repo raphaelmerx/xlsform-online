@@ -17,14 +17,14 @@ import pyxform
 from pyxform import xls2json
 from pyxform.utils import sheet_to_csv, has_external_choices
 
-DJANGO_TMP_HOME = os.environ['DJANGO_TMP_HOME']
+DJANGO_TMP_HOME = os.environ.get('DJANGO_TMP_HOME', '/tmp')
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
 
 
-def handle_uploaded_file(f, temp_dir): 
-    
+def handle_uploaded_file(f, temp_dir):
+
     # filename will be used in a URL and # isn't a valid character
     filename = f.name.replace("#","")
 
