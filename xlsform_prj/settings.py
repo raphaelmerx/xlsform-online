@@ -55,10 +55,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-if DEBUG:
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000",
-    ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://xlsform.rapha.dev"
+]
 
 ROOT_URLCONF = 'xlsform_prj.urls'
 
