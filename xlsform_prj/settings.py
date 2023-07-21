@@ -61,6 +61,11 @@ CORS_ALLOWED_ORIGINS = [
     "https://staging.enketo.getodk.org"
 ]
 
+# let Django know that when the request is https, see
+# https://fly.io/docs/reference/runtime-environment/#x-forwarded-proto
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
 ROOT_URLCONF = 'xlsform_prj.urls'
 
 TEMPLATES = [
