@@ -11,7 +11,10 @@ WORKDIR /code
 
 COPY requirements.txt /tmp/requirements.txt
 
+# Install Java and Python requirements
 RUN set -ex && \
+    apt-get update && \
+    apt-get install -y openjdk-11-jdk && \
     pip install --upgrade pip && \
     pip install -r /tmp/requirements.txt && \
     rm -rf /root/.cache/

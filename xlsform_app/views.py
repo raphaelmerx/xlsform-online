@@ -117,8 +117,8 @@ def index(request):
 
             return render(request, 'upload.html', {
                 'form': UploadFileForm(),
-                'xml_path': request.build_absolute_uri('./downloads/' + relpath),
-                'xml_url': request.build_absolute_uri('./downloads/' + relpath),
+                'xml_path': request.build_absolute_uri('/downloads/' + relpath),
+                'xml_url': request.build_absolute_uri('/downloads/' + relpath),
                 'itemsets_url': itemsets_url,
                 'success': not error,
                 'error': error,
@@ -177,8 +177,8 @@ class XFormAPIView(APIView):
                 error = 'Error: ' + str(e)
 
             return Response({
-                'xml_path': request.build_absolute_uri('./downloads/' + relpath),
-                'xml_url': request.build_absolute_uri('./downloads/' + relpath),
+                'xml_path': request.build_absolute_uri('/downloads/' + relpath),
+                'xml_url': request.build_absolute_uri('/downloads/' + relpath),
                 'itemsets_url': itemsets_url,
                 'success': not error,
                 'error': error,
