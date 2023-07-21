@@ -4,6 +4,10 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.shortcuts import render
 from django import forms
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
 import tempfile
 import os
 import json
@@ -127,6 +131,62 @@ def index(request):
     return render(request, 'upload.html', context={
         'form': form,
     })
+
+
+class XFormAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            error = None
+            warnings = None
+
+            filename, ext = os.path.splitext(request.FILES['file'].name)
+            filename = filename.replace("#", "")
+
+            if not (os.access(DJANGO_TMP_HOME, os.F_OK)):
+                os.mkdir(DJANGO_TMP_HOME)
+
+            temp_dir = tempfile.mkdtemp(prefix='', dir=DJANGO_TMP_HOME)
+            xml_path = os.path.join(temp_dir, filename + '.xml')
+            itemsets_url = None
+
+            relpath = os.path.relpath(xml_path, DJANGO_TMP_HOME)
+
+            fo = open(xml_path, "wb+")
+            fo.close()
+
+            try:
+                xls_path = handle_uploaded_file(request.FILES['file'], temp_dir)
+                warnings = []
+                json_survey = xls2json.parse_file_to_json(xls_path, warnings=warnings)
+                survey = pyxform.create_survey_element_from_dict(json_survey)
+                survey.print_xform_to_file(xml_path, warnings=warnings, pretty_print=False)
+
+                if has_external_choices(json_survey):
+                    itemsets_csv = os.path.join(os.path.split(xls_path)[0],
+                                                "itemsets.csv")
+                    relpath_itemsets_csv = os.path.relpath(itemsets_csv, DJANGO_TMP_HOME)
+                    choices_exported = sheet_to_csv(xls_path, itemsets_csv,
+                                                    "external_choices")
+                    if not choices_exported:
+                        warnings += ["Could not export itemsets.csv, "
+                                     "perhaps the external choices sheet is missing."]
+                    else:
+                        itemsets_url = request.build_absolute_uri('./downloads/' + relpath_itemsets_csv)
+            except Exception as e:
+                error = 'Error: ' + str(e)
+
+            return Response({
+                'xml_path': request.build_absolute_uri('./downloads/' + relpath),
+                'xml_url': request.build_absolute_uri('./downloads/' + relpath),
+                'itemsets_url': itemsets_url,
+                'success': not error,
+                'error': error,
+                'warnings': warnings,
+                'result': True,
+            }, status=status.HTTP_200_OK if not error else status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @xframe_options_exempt
