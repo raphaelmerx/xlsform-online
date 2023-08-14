@@ -57,7 +57,9 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://xlsform.rapha.dev",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://xlsplay.rapha.dev",
     "https://staging.enketo.getodk.org"
 ]
 
